@@ -7,8 +7,13 @@ def main() -> None:
     while True:
         play_game()
 
-        replay = input("Do you want to play again? (y/n): ").lower().strip()
-        if replay != "y":
+        while True:
+            replay = input("Do you want to play again? (y/n): ").lower().strip()
+            if replay in ("y", "n"):
+                break
+            print("Invalid input. Please enter 'y' for yes or 'n' for no.")
+
+        if replay == "n":
             print("Thanks for playing! Goodbye.")
             break
 
