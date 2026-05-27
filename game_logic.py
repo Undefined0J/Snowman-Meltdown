@@ -1,7 +1,13 @@
 """Core game logic for Snowman Meltdown."""
 import random
+import os
 from ascii_art import STAGES
 from data import WORDS
+
+
+def clear_console() -> None:
+    """Clear the terminal screen for a cleaner UI."""
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def get_random_word(word_list: list) -> str:
@@ -11,6 +17,8 @@ def get_random_word(word_list: list) -> str:
 
 def display_game_state(mistakes: int, secret_word: str, guessed_letters: list) -> None:
     """Display the snowman stage and the currently revealed word."""
+    clear_console()
+    print("Welcome to Snowman Meltdown!\n")
     print(STAGES[mistakes])
 
     display_word = ""
@@ -20,7 +28,7 @@ def display_game_state(mistakes: int, secret_word: str, guessed_letters: list) -
         else:
             display_word += "_ "
 
-    print(f"Word: {display_word.strip()}\n")
+    print(f"Word:  {display_word.strip()}\n")
 
 
 def is_word_guessed(secret_word: str, guessed_letters: list) -> bool:
@@ -29,6 +37,19 @@ def is_word_guessed(secret_word: str, guessed_letters: list) -> bool:
         if letter not in guessed_letters:
             return False
     return True
+
+
+def get_valid_guess(guessed_letters: list) -> str:
+    """Prompt the user until a valid, single, un-guessed alphabetical letter is provided."""
+    while True:
+        guess = input("Guess a letter: ").lower().strip()
+
+        if len(guess) != 1 or not guess.isalpha():
+            print("Invalid input. Please enter exactly one alphabetical letter.")
+        elif guess in guessed_letters:
+            print("You already guessed that letter. Try a different one.")
+        else:
+            return guess
 
 
 def play_game() -> None:
@@ -44,19 +65,19 @@ def play_game() -> None:
     while mistakes < max_mistakes:
         display_game_state(mistakes, secret_word, guessed_letters)
 
-        guess = input("Guess a letter: ").lower()
+        guess = get_valid_guess(guessed_letters)
+        guessed_letters.append(guess)
 
         # Process the guess
-        if guess not in guessed_letters:
-            guessed_letters.append(guess)
-            if guess not in secret_word:
-                mistakes += 1
+        if guess not in secret_word:
+            mistakes += 1
 
         # Check for win condition
         if is_word_guessed(secret_word, guessed_letters):
+            display_game_state(mistakes, secret_word, guessed_letters)
             print("Congratulations, you saved the snowman!")
             return
 
     # Check for loss condition (loop ended because max_mistakes was reached)
+    display_game_state(mistakes, secret_word, guessed_letters)
     print(f"Game Over! The word was: {secret_word}")
-    print(STAGES[mistakes])
